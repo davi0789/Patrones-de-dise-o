@@ -3,6 +3,8 @@ interface Character {
     public function attack();
     public function getSpeed();
     public function getDefense();
+    public function getDescription();
+    public function getAttackPower();
 }
 
 class Skeleton implements Character {
@@ -17,6 +19,14 @@ class Skeleton implements Character {
     public function getDefense() {
         return "Baja";
     }
+
+    public function getDescription() {
+        return "Un esqueleto reanimado que busca venganza.";
+    }
+
+    public function getAttackPower() {
+        return 40; 
+    }
 }
 
 class Zombie implements Character {
@@ -30,6 +40,14 @@ class Zombie implements Character {
 
     public function getDefense() {
         return "Media";
+    }
+
+    public function getDescription() {
+        return "Un zombi hambriento de carne.";
+    }
+
+    public function getAttackPower() {
+        return 60; 
     }
 }
 
@@ -48,9 +66,10 @@ class CharacterFactory {
 $attackMessage = '';
 $speedMessage = '';
 $defenseMessage = '';
-$speedValue = 0;
-$attackValue = 0;
-$defenseValue = 0;
+$descriptionMessage = '';
+$speedValue = 0; // Valor inicial
+$attackValue = 0; // Valor inicial
+$defenseValue = 0; // Valor inicial
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $level = $_POST['level'];
@@ -60,9 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $attackMessage = $character->attack();
         $speedMessage = $character->getSpeed();
         $defenseMessage = $character->getDefense();
+        $descriptionMessage = $character->getDescription();
         
         $speedValue = ($speedMessage === "Lenta") ? 30 : 70; 
-        $attackValue = ($defenseMessage === "Baja") ? 40 : 60; 
+        $attackValue = $character->getAttackPower(); 
         $defenseValue = ($defenseMessage === "Baja") ? 20 : 50; 
     } catch (Exception $e) {
         $attackMessage = $e->getMessage();
@@ -81,9 +101,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 100%;
             background-color: #f3f3f3;
             margin-left: 10px;
+            display: none; /* Ocultar las barras por defecto */
         }
         .bar div {
             height: 20px;
+            transition: width 0.2s; /* Suaviza la animación */
         }
         .list {
             list-style-type: none;
@@ -107,6 +129,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             speedBar.style.width = '0%';
             attackBar.style.width = '0%';
             defenseBar.style.width = '0%';
+
+            // Mostrar las barras
+            speedBar.parentElement.style.display = 'block';
+            attackBar.parentElement.style.display = 'block';
+            defenseBar.parentElement.style.display = 'block';
 
             let speedWidth = 0;
             let attackWidth = 0;
@@ -146,7 +173,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div>
     <h3>Resultados:</h3>
-    <p><?php echo     $attackMessage; ?></p>
+    <p><?php echo $attackMessage; ?></p>
+    <p><?php echo $descriptionMessage; ?></p> <!-- Mostrar la descripción del personaje -->
     
     <ul class="list">
         <li class="list-item">
@@ -168,8 +196,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </li>
     </ul>
-    
-
 </div>
 
 <?php if ($_SERVER['REQUEST_METHOD'] === 'POST'): ?>
